@@ -1,0 +1,33 @@
+@startuml
+' Pizzeria (b-10) - sequence diagram: how the threads work together
+
+participant Pizzeria
+participant "Szakács\n(3 threads)" as Szakacs
+queue "pult\nLinkedBlockingQueue(10)" as Pult
+participant "Futár\n(4 threads)" as Futar
+participant Statisztika
+
+Pizzeria -> Futar : submit() x4
+Pizzeria -> Szakacs : submit() x3
+
+loop while rendelesSzamlalo.incrementAndGet() <= rendelesek
+  Szakacs -> Szakacs : Thread.sleep(5-20 ms)  // baking
+  Szakacs -> Pult : put(pizza)
+  note right of Pult : put() blocks if the counter is full
+  Szakacs -> Statisztika : elkeszult()
+end
+
+loop until poison pill
+  Futar -> Pult : take()
+  note right of Pult : take() blocks if the counter is empty
+  Futar -> Statisztika : felveve(waiting time)
+  Futar -> Futar : Thread.sleep(10-30 ms)  // the ride
+  Futar -> Statisztika : kiszallitva(id)
+end
+
+Pizzeria -> Szakacs : shutdown() + awaitTermination()
+Pizzeria -> Pult : put(MEREGPIRULA) x4  // one per courier
+Pult -> Futar : MEREGPIRULA -> return
+Pizzeria -> Futar : shutdown() + awaitTermination()
+Pizzeria -> Statisztika : read the results -> Eredmeny
+@enduml
