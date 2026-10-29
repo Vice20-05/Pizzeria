@@ -87,3 +87,7 @@ blocked in `put()` instead of the pizzas cooling on the counter.
 `docs/pizzeria.puml` is a **sequence diagram** of how the threads cooperate
 through the counter, including the shutdown with the poison pills. Open it with
 the PlantUML VS Code extension or paste it into https://www.plantuml.com/plantuml.
+
+## Note
+
+Claude only checked if the folders have README and gitignore and pushed them so all of them are pushed
